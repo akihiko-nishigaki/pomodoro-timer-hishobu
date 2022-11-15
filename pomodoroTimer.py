@@ -32,6 +32,7 @@ async def on_message(message):
         return
 
     print('aaa')
+    print('message.content:' + message.content)
 
     # 「/wave」と発言したら、wave開始
     if message.content.startswith('/yaruzo'):
