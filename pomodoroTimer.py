@@ -6,6 +6,7 @@ import os
 from datetime import datetime, timedelta, timezone
 
 
+
 #TOKENは最下部のRUNで環境変数から取得しているので不要
 #TOKEN = 'NTc1NjE5NDM5MjQwNjc1MzY5.XiCBmA.syP4iBbp5NmlkWPeCUFksEDhKSo'
 
