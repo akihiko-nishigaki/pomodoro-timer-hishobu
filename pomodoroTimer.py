@@ -16,7 +16,7 @@ client = discord.Client()
 @client.event
 async def on_ready():
     # 起動したらターミナルにログイン通知が表示される
-    print('ポモドーロタイマー：ライ組ログインしました')
+    print('ポモドーロタイマー：秘書部ログインしました')
 
 @client.event
 async def on_message(message):
@@ -58,7 +58,7 @@ async def on_message(message):
         diffMinite = renewMinite - dt_now.minute
 
         # 開始時間を取得
-        dtPomodoroStartTime = dt_now + timedelta(minutes=diffMinite)
+        dtPomodoroStartTime = dt_now.replace(second=0, microsecond=0) + timedelta(minutes=diffMinite)
 
         # Waveで表示する文章を作成する
         strWaveTemplate = ('{}ポモ目 {} - {}')
