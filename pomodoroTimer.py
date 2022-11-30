@@ -54,8 +54,8 @@ async def on_message(message):
         JST = timezone(timedelta(hours=+9), 'JST')
         dt_now = datetime.now(JST)
 
-        # 分を5分単位で切り上げる
-        renewMinite = math.ceil(dt_now.minute / 5) * 5
+        # 分を5分単位で切り上げる(00秒からスタートするため、割り切れる場合において繰り上がるように0.1を加算する)
+        renewMinite = math.ceil(dt_now.minute / 5 + 0.1) * 5
         diffMinite = renewMinite - dt_now.minute
 
         # 開始時間を取得
