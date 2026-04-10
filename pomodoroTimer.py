@@ -3,12 +3,40 @@ import discord
 import math
 import time
 import os
+import logging
+from logging.handlers import RotatingFileHandler
 from datetime import datetime, timedelta, timezone
 
+#
+====================================================================
+# ロギング設定
+#
+====================================================================
+LOG_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_FILE = os.path.join(LOG_DIR, 'bot.log')
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    handlers=[
+        RotatingFileHandler(
+            LOG_FILE,
+            maxBytes=10 * 1024 * 1024,  # 10MB
+            backupCount=5,
+            encoding='utf-8'
+        ),
+        logging.StreamHandler()
+    ]
+)
+logging.getLogger('discord').setLevel(logging.INFO)
+logger = logging.getLogger('pomodoro')
+#
+====================================================================
 
 #TOKENは最下部のRUNで環境変数から取得しているので不要
-#TOKEN = 'NTc1NjE5NDM5MjQwNjc1MzY5.XiCBmA.syP4iBbp5NmlkWPeCUFksEDhKSo'
+#TOKEN =
+'NTc1NjE5NDM5MjQwNjc1MzY5.XiCBmA.syP4iBbp5NmlkWPeCUFksEDhKSo'
 
 # 接続に必要なオブジェクトを生成
 client = discord.Client()
@@ -16,8 +44,20 @@ client = discord.Client()
 # 起動時に動作する処理
 @client.event
 async def on_ready():
-    # 起動したらターミナルにログイン通知が表示される
-    print('ポモドーロタイマー：秘書部ログインしました')
+    logger.info('ポモドーロタイマー：秘書部ログインしました
+(user=%s)', client.user)
+
+@client.event
+async def on_disconnect():
+    logger.warning('Discord から切断されました')
+
+@client.event
+async def on_resumed():
+    logger.info('Discord に再接続しました')
+
+@client.event
+async def on_error(event, *args, **kwargs):
+    logger.exception('未処理の例外が発生しました (event=%s)', event)
 
 @client.event
 async def on_message(message):
@@ -32,13 +72,12 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    print('aaa')
-    print('message.content:' + message.content)
+    logger.info('message received: author=%s content=%s',message.author, message.content)
 
-    # 「/wave」と発言したら、wave開始
+    # 「/yaruzo」と発言したら、wave開始
     if message.content.startswith('/yaruzo'):
 
-        print('bbb')
+        logger.info('/yaruzo command triggered by %s', message.author)
 
         #回数は３回とする
         pomodoroRunCount = 3
@@ -54,12 +93,13 @@ async def on_message(message):
         JST = timezone(timedelta(hours=+9), 'JST')
         dt_now = datetime.now(JST)
 
-        # 分を5分単位で切り上げる(00秒からスタートするため、割り切れる場合において繰り上がるように0.1を加算する)
+        # 分を5分単位で切り上げる(00秒からスタートするため、割り切れ
+る場合において繰り上がるように0.1を加算する)
         renewMinite = math.ceil(dt_now.minute / 5 + 0.1) * 5
         diffMinite = renewMinite - dt_now.minute
 
         # 開始時間を取得
-        dtPomodoroStartTime = dt_now.replace(second=0, microsecond=0) + timedelta(minutes=diffMinite)
+        dtPomodoroStartTime = dt_now.replace(second=0, microsecond=0)   + timedelta(minutes=diffMinite)
 
         # Waveで表示する文章を作成する
         strWaveTemplate = ('{}ポモ目 {} - {}')
@@ -91,7 +131,7 @@ async def on_message(message):
         outputWaveText = 'まもなく作業ソンをはじめます！心の準備をお願いします！\r\n\r\n'
         for i in range(pomodoroRunCount*2):
             outputWaveText = outputWaveText + strWaveTexts[i] +'\r\n'
-
+        logger.info('ポモドーロセッション開始予定: %s', dtPomodoroStartTime)
         await Sendchannel.send(outputWaveText)
 
         # 開始時間まで待つ
@@ -101,10 +141,11 @@ async def on_message(message):
         # 3回実行する
         for i in range(pomodoroRunCount):
 
+            logger.info('ポモ %d/%d 開始', i+1, pomodoroRunCount)
+
             # テキストエリア初期化
             outputWaveText = ''
             outputWaveText = outputWaveText + '【' + str(i+1) + 'ポモ目 開始】\r\n\r\n'
-
 
             # waveのテキスト作成
             for j in range(pomodoroRunCount*2):
@@ -115,10 +156,11 @@ async def on_message(message):
 
                 outputWaveText = outputWaveText +'\r\n'
 
-
             await Sendchannel.send(outputWaveText)
 
             time.sleep(25*60)
+
+            logger.info('ポモ %d/%d 終了', i+1, pomodoroRunCount)
 
             if i == 0:
                 await Sendchannel.send('1ポモ目終了です。お疲れさまでした！少し休んでくださいね。ストレッチがおすすめです！\r\n\r\n')
@@ -149,7 +191,13 @@ async def on_message(message):
             if i < pomodoroRunCount - 1:
                 time.sleep(5*60)
 
+        logger.info('/yaruzo command completed')
+
 
 # Botの起動とDiscordサーバーへの接続
-client.run(os.environ['TOKEN'])
+try:
+    client.run(os.environ['TOKEN'])
+except Exception:
+    logger.exception('client.run で致命的エラー')
+    raise
 #client.run(TOKEN)
