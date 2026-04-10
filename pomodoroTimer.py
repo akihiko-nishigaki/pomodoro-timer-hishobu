@@ -35,8 +35,7 @@ logger = logging.getLogger('pomodoro')
 ====================================================================
 
 #TOKENは最下部のRUNで環境変数から取得しているので不要
-#TOKEN =
-'NTc1NjE5NDM5MjQwNjc1MzY5.XiCBmA.syP4iBbp5NmlkWPeCUFksEDhKSo'
+#TOKEN = 'NTc1NjE5NDM5MjQwNjc1MzY5.XiCBmA.syP4iBbp5NmlkWPeCUFksEDhKSo'
 
 # 接続に必要なオブジェクトを生成
 client = discord.Client()
