@@ -7,11 +7,9 @@ import logging
 from logging.handlers import RotatingFileHandler
 from datetime import datetime, timedelta, timezone
 
-#
-====================================================================
+#====================================================================
 # ロギング設定
-#
-====================================================================
+#====================================================================
 LOG_DIR = os.path.dirname(os.path.abspath(__file__))
 LOG_FILE = os.path.join(LOG_DIR, 'bot.log')
 
@@ -43,8 +41,7 @@ client = discord.Client()
 # 起動時に動作する処理
 @client.event
 async def on_ready():
-    logger.info('ポモドーロタイマー：秘書部ログインしました
-(user=%s)', client.user)
+    logger.info('ポモドーロタイマー：秘書部ログインしました(user=%s)', client.user)
 
 @client.event
 async def on_disconnect():
