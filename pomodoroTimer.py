@@ -29,8 +29,7 @@ logging.basicConfig(
 )
 logging.getLogger('discord').setLevel(logging.INFO)
 logger = logging.getLogger('pomodoro')
-#
-====================================================================
+#====================================================================
 
 #TOKENは最下部のRUNで環境変数から取得しているので不要
 #TOKEN = 'NTc1NjE5NDM5MjQwNjc1MzY5.XiCBmA.syP4iBbp5NmlkWPeCUFksEDhKSo'
